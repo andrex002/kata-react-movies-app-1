@@ -1,0 +1,22 @@
+.page-footer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 17px;
+}
+.page-footer__pagination {
+  font-size: 12px;
+}
+.page-footer__pagination > .ant-pagination-item,
+.page-footer__pagination > .ant-pagination-prev,
+.page-footer__pagination > .ant-pagination-next {
+  min-width: 22px;
+  height: 22px;
+  line-height: 20px;
+  border: 0;
+}
+.page-footer__pagination .ant-pagination-item-active {
+  background-color: #1890ff;
+}
+.page-footer__pagination .ant-pagination-item-active a {
+  color: #fff;
+}

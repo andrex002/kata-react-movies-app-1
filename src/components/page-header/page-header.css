@@ -1,0 +1,9 @@
+.page-header {
+  margin-bottom: 19px;
+}
+.page-header .ant-menu-item + .ant-menu-item {
+  margin-left: 16px;
+}
+.page-header .ant-menu .ant-menu-item::after {
+  inset-inline: 5px;
+}

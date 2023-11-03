@@ -1,0 +1,12 @@
+.search-input {
+  margin-bottom: 32px;
+}
+.search-input .ant-input-group-addon {
+  display: none;
+}
+.search-input .ant-input:first-child {
+  border-radius: 6px;
+}
+.search-input .ant-input {
+  padding: 8px 12px;
+}
