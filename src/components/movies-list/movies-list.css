@@ -4,4 +4,5 @@
 .movies__item {
   max-height: 280px;
   overflow: hidden;
+  height: 200px;
 }
