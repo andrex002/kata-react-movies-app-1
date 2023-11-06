@@ -3,11 +3,10 @@ import { Input } from 'antd';
 
 import './search-input.css';
 
-const onSearch = (value, _e, info) => console.log(info?.source, value);
-const SearchInput = () => {
+const SearchInput = (props) => {
   return (
     <section className="search-input">
-      <Input.Search placeholder="Type to search..." onSearch={onSearch} suffix={false} />
+      <Input.Search placeholder="Type to search..." onChange={props.onChange} suffix={false} />
     </section>
   );
 };

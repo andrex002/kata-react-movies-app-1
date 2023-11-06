@@ -1,6 +1,7 @@
 import React from 'react';
 import { Spin, Alert } from 'antd';
 import { Offline, Online } from 'react-detect-offline';
+import debounce from 'lodash.debounce';
 
 import PageHeader from '../page-header/page-header';
 import SearchInput from '../search-input/search-input';
@@ -18,11 +19,18 @@ export default class App extends React.Component {
     page: 1,
     loading: true,
     error: false,
+    searchText: '',
   };
 
-  componentDidMount() {
+  _onSearch = (evt) => {
+    this.setState({ searchText: evt.target.value, page: 1 });
+    this.downloadsMovies(evt.target.value);
+  };
+
+  downloadsMovies = (query = '', page = 1) => {
+    this.setState({ loading: true });
     api
-      .getAllMovies()
+      .getMovies(query, page)
       .then((response) => {
         this.setState({
           movies: response.results,
@@ -32,13 +40,24 @@ export default class App extends React.Component {
         });
       })
       .catch(this.onError);
+  };
+
+  componentDidMount() {
+    this.downloadsMovies();
   }
+
+  debouncedOnSearch = debounce((evt) => this._onSearch(evt), 800);
 
   onError = () => {
     this.setState({
       error: true,
       loading: false,
     });
+  };
+
+  onChangePage = (page) => {
+    this.setState({ page: page });
+    this.downloadsMovies(this.state.searchText, page);
   };
 
   render() {
@@ -53,17 +72,27 @@ export default class App extends React.Component {
       />
     ) : null;
 
+    const messageNoMovies =
+      this.state.movies.length === 0 && !(this.state.error || this.state.loading) ? (
+        <Alert
+          message="Not found"
+          description="There are no results for your query. Please try to change it or try again later"
+          type="warning"
+        ></Alert>
+      ) : null;
+
     return (
       <div className="container">
         <Online>
           <PageHeader />
           <main>
-            <SearchInput />
+            <SearchInput onChange={this.debouncedOnSearch} />
             {errorMessage}
             {spinner}
             {content}
+            {messageNoMovies}
           </main>
-          <PageFooter totalFilms={this.state.totalFilms} page={this.state.page} />
+          <PageFooter totalFilms={this.state.totalFilms} page={this.state.page} onChangePage={this.onChangePage} />
         </Online>
         <Offline>
           <Alert

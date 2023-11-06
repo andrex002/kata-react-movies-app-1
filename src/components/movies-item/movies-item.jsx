@@ -14,7 +14,8 @@ const truncatesDescription = (text, clip = 200) => {
 };
 
 const MoviesItemView = ({ film }) => {
-  const releaseDate = format(new Date(film.release_date), 'MMMM d, y');
+  let releaseDate = new Date(film.release_date);
+  releaseDate = releaseDate instanceof Date && !isNaN(releaseDate) ? format(releaseDate, 'MMMM d, y') : 'n/a';
   const calculatesСolorRatingBar = () => {
     if (film.vote_average >= 7) {
       return '#66E900';
@@ -59,10 +60,6 @@ const MoviesItemView = ({ film }) => {
 };
 
 const MoviesItem = ({ film }) => {
-  //   console.log(film);
-  // const spinner = loading ? <Spin /> : null;
-  // const content = !loading ? <MoviesItemView film={film} /> : null;
-
   return (
     <Card hoverable className="card-film">
       <Flex className="card-film__flex">

@@ -8,11 +8,12 @@ const PageFooter = (props) => {
     <footer className="page-footer">
       <Pagination
         className="page-footer__pagination"
+        pageSize={20}
         current={props.page}
         defaultCurrent={1}
         total={props.totalFilms}
         showSizeChanger={false}
-        onChange={() => {}}
+        onChange={props.onChangePage}
       ></Pagination>
     </footer>
   );

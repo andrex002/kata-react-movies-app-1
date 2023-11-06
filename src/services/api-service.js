@@ -1,5 +1,5 @@
 export default class ApiService {
-  _baseUrl = 'https://api.themoviedb.org/3';
+  _baseUrl = 'https://api.themoviedb.org';
   _apiKey = '26afbbaab30b838257035f206323de5e';
 
   getResource = async (url) => {
@@ -8,10 +8,17 @@ export default class ApiService {
     return await result.json();
   };
 
-  getAllMovies = () => {
-    const res = this.getResource(
-      'https://api.themoviedb.org/3/movie/popular?api_key=26afbbaab30b838257035f206323de5e&language=en-US&page=1'
-    );
+  getMovies = (text, page) => {
+    const searchQuery = text.trim();
+    let url = searchQuery ? '/3/search/movie' : '/3/movie/popular';
+    let fetchUrl = new URL(url, this._baseUrl);
+    if (searchQuery) {
+      fetchUrl.searchParams.append('query', searchQuery);
+    }
+    fetchUrl.searchParams.append('api_key', this._apiKey);
+    fetchUrl.searchParams.append('language', 'en-US');
+    fetchUrl.searchParams.append('page', page);
+    const res = this.getResource(fetchUrl);
     return res;
   };
 }
