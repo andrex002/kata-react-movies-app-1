@@ -9,17 +9,22 @@ import MoviesList from '../movies-list/movies-list';
 import PageFooter from '../page-footer/page-footer';
 import './app.css';
 import ApiService from '../../services/api-service';
-
-const api = new ApiService();
+import { GenresProvider } from '../genres-context/genres-context';
 
 export default class App extends React.Component {
+  api = new ApiService();
+
   state = {
     movies: [],
+    listGenres: [],
     totalFilms: null,
     page: 1,
+    tab: 'search',
     loading: true,
     error: false,
     searchText: '',
+    guestKey: null,
+    genres: [],
   };
 
   _onSearch = (evt) => {
@@ -27,10 +32,22 @@ export default class App extends React.Component {
     this.downloadsMovies(evt.target.value);
   };
 
+  getGuestSessionKey = () => {
+    this.setState({ loading: true });
+    this.api
+      .createGuestSession()
+      .then((data) => {
+        this.setState({ loading: false, guestKey: data.guest_session_id });
+      })
+      .catch((err) => {
+        this.setState({ loading: false, error: err });
+      });
+  };
+
   downloadsMovies = (query = '', page = 1) => {
     this.setState({ loading: true });
-    api
-      .getMovies(query, page)
+    this.api
+      .getMovies(query, page, this.state.guestKey)
       .then((response) => {
         this.setState({
           movies: response.results,
@@ -42,7 +59,34 @@ export default class App extends React.Component {
       .catch(this.onError);
   };
 
+  downloadsRatedMovies = (page = 1) => {
+    this.setState({ loading: true });
+    this.api
+      .getsRatedMovies(page, this.state.guestKey)
+      .then((response) => {
+        this.setState({
+          movies: response.results,
+          totalFilms: response.total_results,
+          page: response.page,
+          loading: false,
+          error: false,
+        });
+      })
+      .catch((err) => {
+        this.setState({ error: err, loading: false });
+      });
+  };
+
+  getGenres = () => {
+    this.api
+      .getGenres()
+      .then((data) => this.setState({ genres: data.genres }))
+      .catch((err) => this.setState({ error: err }));
+  };
+
   componentDidMount() {
+    this.getGuestSessionKey();
+    this.getGenres();
     this.downloadsMovies();
   }
 
@@ -60,9 +104,34 @@ export default class App extends React.Component {
     this.downloadsMovies(this.state.searchText, page);
   };
 
+  onRatingChange = (id, rating) => {
+    this.setState(({ movies }) => {
+      const index = movies.findIndex((item) => item.id === id);
+      const updatedMovie = { ...movies[index], rating: rating };
+      return {
+        movies: [...movies.slice(0, index), updatedMovie, ...movies.slice(index + 1)],
+      };
+    });
+    this.api.addsRating(id, rating, this.state.guestKey).then((res) => {
+      if (!res.success) {
+        this.setState({ error: true });
+      }
+    });
+  };
+
+  onMenuChange = (menuItem) => {
+    this.setState({ tab: menuItem.key });
+    menuItem.key === 'search' ? this.downloadsMovies(this.state.searchText, this.state.page) : null;
+    menuItem.key === 'rated' ? this.downloadsRatedMovies() : null;
+  };
+
   render() {
     const spinner = this.state.loading ? <Spin size={'large'} /> : null;
-    const content = !(this.state.loading || this.state.error) ? <MoviesList films={this.state.movies} /> : null;
+    const content = !(this.state.loading || this.state.error) ? (
+      <GenresProvider value={this.state.genres}>
+        <MoviesList films={this.state.movies} onRatingChange={this.onRatingChange} />
+      </GenresProvider>
+    ) : null;
     const errorMessage = this.state.error ? (
       <Alert
         message="Server Error"
@@ -81,12 +150,17 @@ export default class App extends React.Component {
         ></Alert>
       ) : null;
 
+    const searchInput =
+      this.state.tab === 'search' ? (
+        <SearchInput onChange={this.debouncedOnSearch} value={this.state.searchText} />
+      ) : null;
+
     return (
       <div className="container">
         <Online>
-          <PageHeader />
+          <PageHeader onMenuChange={this.onMenuChange} />
           <main>
-            <SearchInput onChange={this.debouncedOnSearch} />
+            {searchInput}
             {errorMessage}
             {spinner}
             {content}

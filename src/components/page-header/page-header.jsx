@@ -13,11 +13,11 @@ const items = [
   },
 ];
 
-const PageHeader = () => {
+const PageHeader = ({ onMenuChange }) => {
   return (
     <header className="page-header">
       <Flex justify="center">
-        <Menu mode="horizontal" defaultSelectedKeys={['search']} items={items} />
+        <Menu mode="horizontal" defaultSelectedKeys={['search']} items={items} onClick={onMenuChange} />
       </Flex>
     </header>
   );

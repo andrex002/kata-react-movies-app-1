@@ -2,10 +2,14 @@ html,
 body {
   margin: 0;
   padding: 0;
+  min-width: 420px;
 }
 
 main {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+* {
+  box-sizing: border-box;
 }

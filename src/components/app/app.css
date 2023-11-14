@@ -11,3 +11,9 @@
   margin-top: auto;
   margin-bottom: auto;
 }
+
+@media (max-width: 992px) {
+  .container {
+    padding: 0 16px;
+  }
+}
